@@ -9,7 +9,7 @@ pip install -r requirements.txt
 	#Finds all static files from STATICFILES_DIRS.
 	#Copies them to STATIC_ROOT (staticfiles/).
 	#WhiteNoise serves these files in production.
-✅ Why --no-input?
+#Why --no-input?
 	#This prevents any user prompts (e.g., confirmation messages).
 	#Render runs this automatically, so it must run without requiring input.
 python manage.py collectstatic --no-input
