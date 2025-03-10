@@ -34,8 +34,13 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # Default to DEBUG=False if not explicitly set in .env
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+# Read ALLOWED_HOSTS from environment variables (.env for local, Render's env for production)
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
+# Get Render’s hostname dynamically
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
