@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hello, Django</title>
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    </head>
+    <body>
+        <!-- Header Section (with Static Placeholder & Port Info) -->
+        <div class="header-container">
+            <h1>Welcome to Django!</h1>
+            <p>Learn how to scale backend systems by observing real-time resource usage, testing load impact, and deploying across containers, Kubernetes, and the cloud.</p>
+            <p> Global Static File: <strong>images/global-static.png</strong> | App Static File: <strong>hello_app/images/app-static.png</strong></p>
+            <div class="static-placeholder">
+            <img src="{% static 'images/global-static.png' %}" alt="Static File / Image Placeholder">
+            </div>
+            <div class="static-placeholder">
+            <img src="{% static 'hello_app/images/app-static.png' %}" alt="Static File / Image Placeholder">
+            </div>
+            <p><strong>App running on:</strong> Port {{ running_port }}</p>
+        </div>
+
+        <!-- Three-Column Layout -->
+        <div class="main-container">
+            <!-- System Specs -->
+            <div class="container">
+                <h2>System Specs</h2>
+                <div class="info-box">
+                    <span>Server Type:</span> <span>{{ server_type }}</span>
+                </div>
+                <div class="info-box">
+                    <span>CPU Cores:</span> <span>{{ cpu_cores }}</span>
+                </div>
+                <div class="info-box">
+                    <span>Total Memory:</span> <span>{{ total_memory }} MB</span>
+                </div>
+            </div>
+
+            <!-- App Metrics -->
+            <div class="container">
+                <h2>App Metrics</h2>
+                <div class="info-box">
+                    <span>App CPU Usage:</span> <span>{{ app_cpu_usage }}</span>
+                </div>
+                <div class="info-box">
+                    <span>App Memory Usage:</span> <span>{{ app_memory_usage }}</span>
+                </div>
+            </div>
+
+            <!-- Deployment Details -->
+            <div class="container">
+                <h2>Deployment Details</h2>
+                <div class="info-box">
+                    <span>Docker Image:</span> <span>{{ docker_image }}</span>
+                </div>
+                <div class="info-box">
+                    <span>Docker Containers:</span> <span>{{ local_docker_containers }}</span>
+                </div>
+                <div class="info-box">
+                    <span>Kubernetes Pods:</span> <span>{{ kubernetes_pods }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="#" class="brand">LearnToScale</a> 🚀
+        </div>
+    </body>
+</html>
