@@ -7,15 +7,21 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.conf import settings
 import logging
+
 logger = logging.getLogger(__name__)
 
 def check_database():
-    logger.info(f"Database Engine: {settings.DATABASES['default']['ENGINE']}")
-    logger.info(f"Database Name: {settings.DATABASES['default']['NAME']}")
+    db_engine = settings.DATABASES['default']['ENGINE']
+    db_name = settings.DATABASES['default']['NAME']
+    print(f"DEBUG: Database Engine: {db_engine}")  # Ensure this prints
+    print(f"DEBUG: Database Name: {db_name}")
+    logger.info(f"Database Engine: {db_engine}")
+    logger.info(f"Database Name: {db_name}")
+    return f"Database: {db_engine}, Name: {db_name}"
 
 def test_db(request):
-    check_database()
-    return HttpResponse("Check logs for database details.")
+    db_info = check_database()
+    return HttpResponse(f"DB Check Passed! {db_info}")
 
 
 
