@@ -125,20 +125,6 @@ else:
     }
 
 
-# Default to SQLite if not explicitly set in .env
-# use later when setting db to a production db
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
-        'NAME': os.getenv("DB_NAME", os.path.join(BASE_DIR, "db.sqlite3")),
-        'USER': os.getenv("DB_USER", ""),
-        'PASSWORD': os.getenv("DB_PASSWORD", ""),
-        'HOST': os.getenv("DB_HOST", ""),
-        'PORT': os.getenv("DB_PORT", ""),
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
