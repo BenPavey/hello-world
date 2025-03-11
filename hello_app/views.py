@@ -8,8 +8,10 @@ from django.conf import settings
 import logging
 
 logger = logging.getLogger(__name__)
-logger.info(f"Database Engine: {settings.DATABASES['default']['ENGINE']}")
-
+def check_database():
+    logger.info(f"Database Engine: {settings.DATABASES['default']['ENGINE']}")
+    logger.info(f"Database Name: {settings.DATABASES['default']['NAME']}")
+    
 def get_running_port(request):
     """Retrieve the port Django is running on."""
     host = request.get_host()
