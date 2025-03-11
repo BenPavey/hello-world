@@ -111,22 +111,19 @@ WSGI_APPLICATION = 'hello_world_project.wsgi.application'
 # Read DATABASE_URL from environment variables (set by Render)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# If DEBUG=True (Local), use SQLite
-if DEBUG:
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+    }
+else:
+    # Fallback to SQLite only if DATABASE_URL is not set
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, "db.sqlite3"),
         }
     }
-else:
-    # If DEBUG=False (Production), use PostgreSQL
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv("DATABASE_URL"),
-            conn_max_age=600  # Keeps database connections open longer for performance
-        )
-    }
+
 
 # Default to SQLite if not explicitly set in .env
 # use later when setting db to a production db
