@@ -4,14 +4,22 @@ import subprocess
 from django.shortcuts import render
 
 
+from django.http import HttpResponse
 from django.conf import settings
 import logging
-
 logger = logging.getLogger(__name__)
+
 def check_database():
     logger.info(f"Database Engine: {settings.DATABASES['default']['ENGINE']}")
     logger.info(f"Database Name: {settings.DATABASES['default']['NAME']}")
-    
+
+def test_db(request):
+    check_database()
+    return HttpResponse("Check logs for database details.")
+
+
+
+
 def get_running_port(request):
     """Retrieve the port Django is running on."""
     host = request.get_host()
