@@ -20,8 +20,9 @@ def check_database():
     return f"Database: {db_engine}, Name: {db_name}"
 
 def test_db(request):
+    debug_status = settings.DEBUG
     db_info = check_database()
-    return HttpResponse(f"DB Check Passed! {db_info}")
+    return HttpResponse(f"DEBUG: {debug_status} | {db_info}")
 
 
 
