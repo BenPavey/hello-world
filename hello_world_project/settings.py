@@ -20,7 +20,7 @@ load_dotenv()
 # Set up logging
 logger = logging.getLogger(__name__)
 
-
+# Configure Django to log to the console
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

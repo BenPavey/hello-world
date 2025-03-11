@@ -8,25 +8,6 @@ from django.http import HttpResponse
 from django.conf import settings
 import logging
 
-logger = logging.getLogger(__name__)
-
-def check_database():
-    db_engine = settings.DATABASES['default']['ENGINE']
-    db_name = settings.DATABASES['default']['NAME']
-    print(f"DEBUG: Database Engine: {db_engine}")  # Ensure this prints
-    print(f"DEBUG: Database Name: {db_name}")
-    logger.info(f"Database Engine: {db_engine}")
-    logger.info(f"Database Name: {db_name}")
-    return f"Database: {db_engine}, Name: {db_name}"
-
-def test_db(request):
-    debug_status = settings.DEBUG
-    db_info = check_database()
-    return HttpResponse(f"DEBUG: {debug_status} | {db_info}")
-
-
-
-
 def get_running_port(request):
     """Retrieve the port Django is running on."""
     host = request.get_host()
