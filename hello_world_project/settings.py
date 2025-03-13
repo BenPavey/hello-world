@@ -23,6 +23,11 @@ load_dotenv()
 GCP_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
 
 if GCP_KEY_BASE64:
+    # Ensure the base64 string is properly padded
+    missing_padding = len(GCP_KEY_BASE64) % 4
+    if missing_padding:
+        GCP_KEY_BASE64 += '=' * (4 - missing_padding)
+
     # Decode the base64 string back to JSON
     key_json = base64.b64decode(GCP_KEY_BASE64).decode("utf-8")
 
@@ -42,10 +47,13 @@ GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     os.getenv('GOOGLE_APPLICATION_CREDENTIALS')  # Path to the JSON key file for the service account
 )
 
-# Google Cloud Storage for Static Files
-STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
+#undo
 
+# Google Cloud Storage for Static Files
+#STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+
+#STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
+STATIC_URL = '/static/'
 
 
 # Set up logging
@@ -186,15 +194,20 @@ USE_I18N = True
 
 USE_TZ = True
 
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
-        "OPTIONS": {
-            "bucket_name": GS_BUCKET_NAME,
-            "project_id": GS_PROJECT_ID,
-            "credentials": GS_CREDENTIALS,
-        },
-    },
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+
+if not DEBUG:
+    # Path where `collectstatic` will gather static files in production
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    # Use Google Cloud Storage for static files in production
+    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+    # Ensure the static URL points to GCP storage
+    STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
+    STORAGES = {
     "staticfiles": {
         "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
         "OPTIONS": {
@@ -205,38 +218,13 @@ STORAGES = {
     },
 }
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+# Serve static files locally when DEBUG=True
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'hello_app/static'),
+        os.path.join(BASE_DIR, 'static'),
+    ]
 
-# used in development and production
-# Directory where Django will look for static files in development and production
-# In development, run `python manage.py runserver` and Django will look for static files in this directory
-# In production, run `python manage.py collectstatic` to gather all static files into STATIC_ROOT
-# Note: The path to specific static files should be included in your HTML templates using the `{% static %}` template tag
-# Example: <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-# Static files (CSS, JavaScript, Images)
-
-
-# only used in production i.e when DEBUG=False
-# Directory where collectstatic will store all static files in production
-# In production, run `python manage.py collectstatic` to gather all static files into this directory
-# This is where production web servers (e.g., Nginx, Apache) will look for static files
-# Note: The path to specific static files should be included in your HTML templates using the `{% static %}` template tag
-# Example: <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Path to static files
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
-    # Use Google Cloud Storage for static files in production
-    # STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-
-# only used in development
-# Directories where Django will look for static files in development, i.e when `DEBUG=True`
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'hello_app/static'),
-    os.path.join(BASE_DIR, 'static'),
-]
 
 # MEDIA FILES (User uploads) - Not used yet but pre-configured
 MEDIA_URL = "/media/"
