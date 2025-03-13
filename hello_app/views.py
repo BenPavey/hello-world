@@ -8,6 +8,50 @@ from django.http import HttpResponse
 from django.conf import settings
 import logging
 
+
+
+
+
+
+import os
+from django.http import JsonResponse
+from django.conf import settings
+from django.core.files.storage import default_storage
+
+def debug_static_files(request):
+    # Check static files storage backend
+    storage_backend = settings.STATICFILES_STORAGE
+    
+    # Check GCS Bucket Name
+    bucket_name = getattr(settings, "GS_BUCKET_NAME", "Not Set")
+    
+    # Check if environment variables are set
+    gcp_key_base64 = os.getenv("GCP_KEY_BASE64", "Not Set")
+    google_credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "Not Set")
+
+    # Test file upload
+    test_file_path = "test-static-django.txt"
+    try:
+        with default_storage.open(test_file_path, "w") as f:
+            f.write("This is a test file uploaded via Django's storage system.")
+        file_exists = default_storage.exists(test_file_path)
+    except Exception as e:
+        file_exists = f"Error: {str(e)}"
+
+    return JsonResponse({
+        "STATICFILES_STORAGE": storage_backend,
+        "GS_BUCKET_NAME": bucket_name,
+        "GCP_KEY_BASE64_Set": gcp_key_base64 != "Not Set",
+        "GOOGLE_APPLICATION_CREDENTIALS": google_credentials_path,
+        "Test File Uploaded": file_exists,
+    })
+
+
+
+
+
+
+
 def get_running_port(request):
     """Retrieve the port Django is running on."""
     host = request.get_host()
