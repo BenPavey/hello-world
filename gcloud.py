@@ -9,7 +9,7 @@ class GoogleCloudStaticFileStorage(GoogleCloudStorage):
     """
     Google file storage class for handling static files (e.g., CSS, JS).
     """
-    bucket_name = setting('GS_STATIC_BUCKET_NAME')
+    bucket_name = setting('GS_BUCKET_NAME')
 
     def url(self, name):
         """
