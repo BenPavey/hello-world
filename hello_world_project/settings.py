@@ -12,11 +12,29 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import logging
 import dj_database_url
+import base64
 from dotenv import load_dotenv
 from google.oauth2 import service_account
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Decode base64-encoded service account key (Render doesn't allow uploading JSON secrets directly)
+GCP_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
+
+if GCP_KEY_BASE64:
+    # Decode the base64 string back to JSON
+    key_json = base64.b64decode(GCP_KEY_BASE64).decode("utf-8")
+
+    # Save the key to a temporary file
+    GOOGLE_CREDENTIALS_PATH = "/tmp/gcp-storage-key.json"
+
+    with open(GOOGLE_CREDENTIALS_PATH, "w") as f:
+        f.write(key_json)
+
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_PATH
+else:
+    raise ValueError("GCP_KEY_BASE64 environment variable not set")
 
 GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')  # The name of your GCS bucket
 GS_PROJECT_ID = os.getenv('GS_PROJECT_ID')
