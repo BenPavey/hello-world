@@ -136,13 +136,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+
 # Static files (CSS, JavaScript, Images)
 # Using Google Cloud Storage for static files
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 STATICFILES_STORAGE = 'storage_backends.gcloud.GoogleCloudStaticFileStorage'  # Custom storage backend for GCS
 GS_BUCKET_NAME = os.getenv('GS_STATIC_BUCKET_NAME','learntoscale-static-files')  # Replace with your static bucket name
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
 # URL for serving static files
 STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
@@ -150,9 +150,6 @@ STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 # Define Google Cloud Storage Credentials
 GOOGLE_CREDENTIALS_PATH = "/tmp/gcp-storage-key.json"  # Path to GCP credentials
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH)
-
-# Optional: Customize where you store static files (local vs GCS)
-STATIC_ROOT = None  # GCS handles static files
 
 # Media files - Not configured for now
 MEDIA_URL = "/media/"
