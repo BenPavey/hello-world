@@ -13,9 +13,22 @@ import os
 import logging
 import dj_database_url
 from dotenv import load_dotenv
+from google.oauth2 import service_account
 
 # Load environment variables from .env file
 load_dotenv()
+
+GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')  # The name of your GCS bucket
+GS_PROJECT_ID = os.getenv('GS_PROJECT_ID')
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    os.getenv('GOOGLE_APPLICATION_CREDENTIALS')  # Path to the JSON key file for the service account
+)
+
+# Google Cloud Storage for Static Files
+STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -155,6 +168,24 @@ USE_I18N = True
 
 USE_TZ = True
 
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": GS_BUCKET_NAME,
+            "project_id": GS_PROJECT_ID,
+            "credentials": GS_CREDENTIALS,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": GS_BUCKET_NAME,
+            "project_id": GS_PROJECT_ID,
+            "credentials": GS_CREDENTIALS,
+        },
+    },
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -166,7 +197,7 @@ USE_TZ = True
 # Note: The path to specific static files should be included in your HTML templates using the `{% static %}` template tag
 # Example: <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/' 
+
 
 # only used in production i.e when DEBUG=False
 # Directory where collectstatic will store all static files in production
@@ -179,8 +210,7 @@ if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Path to static files
     # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
     # and renames the files with unique names for each version to support long-term caching
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # 🚀 LATER: This will be replaced by Google Cloud Storage for production:
+    # Use Google Cloud Storage for static files in production
     # STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 # only used in development
