@@ -139,7 +139,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # Using Google Cloud Storage for static files
 STATICFILES_STORAGE = 'storage_backends.gcloud.GoogleCloudStaticFileStorage'  # Custom storage backend for GCS
-GS_BUCKET_NAME = 'learntoscale-static-files'  # Replace with your static bucket name
+GS_BUCKET_NAME = os.getenv('GS_STATIC_BUCKET_NAME','learntoscale-static-files')  # Replace with your static bucket name
 
 # URL for serving static files
 STATIC_URL = 'https://storage.googleapis.com/{}/'.format(GS_BUCKET_NAME)
