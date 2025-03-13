@@ -188,11 +188,13 @@ DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 STATIC_URL = '/static/'
 
+# Ensure STATIC_ROOT is always set
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Required for collectstatic to work
+
 # In production, store static files in GCS
 if not DEBUG:
     STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-    STATICFILES_DIRS = []
-    STATIC_ROOT = None  # GCS handles static files
+    STATICFILES_DIRS = []  # Remove local static directories when using GCS
 else:
     # Use local static storage for development
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
@@ -200,7 +202,6 @@ else:
         os.path.join(BASE_DIR, 'hello_app/static'),
         os.path.join(BASE_DIR, 'static'),
     ]
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Used only in production
 
 # MEDIA FILES (User uploads) - Not used yet but pre-configured
 MEDIA_URL = "/media/"
