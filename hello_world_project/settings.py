@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import logging
 import dj_database_url
+import base64
+import json
 from dotenv import load_dotenv
 from google.oauth2 import service_account
 from storages.backends.gcloud import GoogleCloudStorage
@@ -158,13 +160,25 @@ USE_TZ = True
 
 
 # Google Cloud Storage Configuration
-GOOGLE_CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-if GOOGLE_CREDENTIALS_PATH:
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH)
+# Decode base64-encoded service account key (Render doesn't allow uploading JSON secrets directly)
+GCP_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
+
+if GCP_KEY_BASE64:
+    # Decode the base64 string back to JSON
+    key_json = base64.b64decode(GCP_KEY_BASE64).decode("utf-8")
+
+    # Save the key to a temporary file
+    GOOGLE_CREDENTIALS_PATH = "/tmp/gcp-storage-key.json"
+
+    with open(GOOGLE_CREDENTIALS_PATH, "w") as f:
+        f.write(key_json)
+
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_PATH
 else:
-    raise ValueError("GOOGLE_APPLICATION_CREDENTIALS environment variable not set")
+    raise ValueError("GCP_KEY_BASE64 environment variable not set")
 
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH)
 GS_BUCKET_NAME = "learntoscale-static-files"
 
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
