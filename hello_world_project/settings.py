@@ -1,7 +1,8 @@
 import os
 import logging
-from google.oauth2 import service_account
+import base64
 import dj_database_url
+from google.oauth2 import service_account
 from storages.backends.gcloud import GoogleCloudStorage
 from urllib.parse import urljoin
 from dotenv import load_dotenv
@@ -11,6 +12,24 @@ load_dotenv()
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+
+# Retrieve the Base64 encoded key
+GCP_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
+
+if GCP_KEY_BASE64:
+    # Decode the Base64 string back to JSON
+    key_json = base64.b64decode(GCP_KEY_BASE64).decode("utf-8")
+
+    # Save the key to a temporary file
+    GOOGLE_CREDENTIALS_PATH = "/tmp/gcp-storage-key.json"
+    with open(GOOGLE_CREDENTIALS_PATH, "w") as f:
+        f.write(key_json)
+
+    # Set the environment variable for Google Cloud
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_PATH
+else:
+    raise ValueError("GCP_KEY_BASE64 environment variable not set")
 
 # Configure Django to log to the console
 LOGGING = {
