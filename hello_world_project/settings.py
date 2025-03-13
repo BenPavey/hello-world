@@ -196,7 +196,7 @@ if not DEBUG:
     STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     STATICFILES_DIRS = []  # Remove local static directories when using GCS
 else:
-    # Use local static storage for development
+    # Use local storage for development
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'hello_app/static'),
@@ -225,6 +225,12 @@ if not DEBUG:  # Only enforce these in production
     SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", 0))  # Enforce HSTS when set
 
 # Log a warning if DEBUG is enabled
+
+from django.conf import settings
+
+if not DEBUG:
+    # 🔹 Force STATICFILES_STORAGE explicitly
+    settings.STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 if DEBUG:
     logger.warning("WARNING: Debug mode is enabled! Don't use this in production.")
