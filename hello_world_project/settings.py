@@ -13,6 +13,8 @@ import os
 import logging
 import dj_database_url
 from dotenv import load_dotenv
+from google.oauth2 import service_account
+from storages.backends.gcloud import GoogleCloudStorage
 
 # Load environment variables from .env file
 load_dotenv()
@@ -42,7 +44,6 @@ LOGGING = {
 # Base directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -70,7 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'hello_app', # This is the app we created earlier
+    'hello_app',  # This is the app we created earlier
 ]
 
 MIDDLEWARE = [
@@ -156,45 +157,40 @@ USE_I18N = True
 USE_TZ = True
 
 
+# Google Cloud Storage Configuration
+GOOGLE_CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+if GOOGLE_CREDENTIALS_PATH:
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH)
+else:
+    raise ValueError("GOOGLE_APPLICATION_CREDENTIALS environment variable not set")
+
+GS_BUCKET_NAME = "learntoscale-static-files"
+
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# used in development and production
-# Directory where Django will look for static files in development and production
-# In development, run `python manage.py runserver` and Django will look for static files in this directory
-# In production, run `python manage.py collectstatic` to gather all static files into STATIC_ROOT
-# Note: The path to specific static files should be included in your HTML templates using the `{% static %}` template tag
-# Example: <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/' 
+STATIC_URL = '/static/'
 
-# only used in production i.e when DEBUG=False
-# Directory where collectstatic will store all static files in production
-# In production, run `python manage.py collectstatic` to gather all static files into this directory
-# This is where production web servers (e.g., Nginx, Apache) will look for static files
-# Note: The path to specific static files should be included in your HTML templates using the `{% static %}` template tag
-# Example: <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+# In production, store static files in GCS
 if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Path to static files
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # 🚀 LATER: This will be replaced by Google Cloud Storage for production:
-    # STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-
-# only used in development
-# Directories where Django will look for static files in development, i.e when `DEBUG=True`
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'hello_app/static'),
-    os.path.join(BASE_DIR, 'static'),
-]
+    STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    STATICFILES_DIRS = []
+    STATIC_ROOT = None  # GCS handles static files
+else:
+    # Use local static storage for development
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'hello_app/static'),
+        os.path.join(BASE_DIR, 'static'),
+    ]
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Used only in production
 
 # MEDIA FILES (User uploads) - Not used yet but pre-configured
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")  
-# LATER: This will be replaced by Google Cloud Storage for production:
-# DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -202,8 +198,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
-# Strengthen security against common web attacks when running Django in production
+# Security settings for production
 
 if not DEBUG:  # Only enforce these in production
     SECURE_BROWSER_XSS_FILTER = True  # Protect against XSS attacks
@@ -218,3 +213,9 @@ if not DEBUG:  # Only enforce these in production
 
 if DEBUG:
     logger.warning("WARNING: Debug mode is enabled! Don't use this in production.")
+
+from django.core.files.storage import default_storage
+from storages.backends.gcloud import GoogleCloudStorage
+
+# Explicitly set default storage backend
+default_storage._wrapped = GoogleCloudStorage()
