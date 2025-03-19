@@ -1,0 +1,22 @@
+# Ignore Python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+venv/
+.venv/
+
+# Ignore SQLite database (local dev only)
+db.sqlite3
+
+# Ignore environment variables & credentials
+.env
+*.secrets
+
+# Ignore collected static files (Django will handle in production)
+staticfiles/
+
+# Ignore Git repo files
+.git
+.gitignore
